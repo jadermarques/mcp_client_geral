@@ -331,25 +331,35 @@ with st.sidebar:
             st.error(f"❌ Invalid JSON: {e}")
 
     with st.expander("📋 Registered Tools"):
-        for tool in list(st.session_state.pending_mcp_config.keys()):
+        for tool_name, tool_config in list(st.session_state.pending_mcp_config.items()):
+            # Inicializa flags de ativação se ainda não existem
             if "tool_enabled_flags" not in st.session_state:
                 st.session_state.tool_enabled_flags = {}
-            if tool not in st.session_state.tool_enabled_flags:
-                st.session_state.tool_enabled_flags[tool] = True  # inicia como ativo
+            if tool_name not in st.session_state.tool_enabled_flags:
+                st.session_state.tool_enabled_flags[tool_name] = True
 
-            is_enabled = st.session_state.tool_enabled_flags[tool]
+            if "url" in tool_config or tool_config.get("transport") == "sse":
+                type_icon = "🌐"  # remoto
+            elif "command" in tool_config and tool_config.get("transport") == "stdio":
+                type_icon = "🖥️"  # local
+            else:
+                type_icon = "❓"  # desconhecido
+
+
+            # Status (ativo/inativo)
+            is_enabled = st.session_state.tool_enabled_flags[tool_name]
             status_icon = "🟢" if is_enabled else "🔴"
-            toggle_label = f"{status_icon} `{tool}`"
+            toggle_label = f"{status_icon} {type_icon} `{tool_name}`"
 
             col1, col2, col3 = st.columns([8, 1, 1])
-            if col1.button(toggle_label, key=f"toggle_{tool}", help="Click to enable/disable", use_container_width=True):
-                st.session_state.tool_enabled_flags[tool] = not is_enabled
+            if col1.button(toggle_label, key=f"toggle_{tool_name}", help="Click to enable/disable", use_container_width=True):
+                st.session_state.tool_enabled_flags[tool_name] = not is_enabled
                 st.rerun()
-            if col2.button("🗑️", key=f"del_{tool}", help="Delete tool", use_container_width=True):
-                del st.session_state.pending_mcp_config[tool]
-                if tool in st.session_state.tool_enabled_flags:
-                    del st.session_state.tool_enabled_flags[tool]
+            if col2.button("🗑️", key=f"del_{tool_name}", help="Delete tool", use_container_width=True):
+                del st.session_state.pending_mcp_config[tool_name]
+                st.session_state.tool_enabled_flags.pop(tool_name, None)
                 st.rerun()
+
 
 
     st.divider()
@@ -386,20 +396,33 @@ if not st.session_state.session_initialized:
 
 print_message()
 
-query = st.chat_input("💬 Enter your question")
-if query and st.session_state.session_initialized:
-    st.chat_message("user", avatar="🧑‍💻").markdown(query)
-    with st.chat_message("assistant", avatar="🤖"):
-        tool_placeholder = st.empty()
-        text_placeholder = st.empty()
-        resp, final_text, final_tool = st.session_state.event_loop.run_until_complete(
-            process_query(query, text_placeholder, tool_placeholder, st.session_state.timeout_seconds)
-        )
-    if "error" in resp:
-        st.error(resp["error"])
+with st.container():
+    user_query = st.text_area(
+        "💬 Enter your question",
+        height=100,
+        key="chat_input_area",
+        label_visibility="collapsed",
+        placeholder="Type your message here..."
+    )
+    send_button = st.button("➡️ Send", use_container_width=True)
+
+if send_button and user_query.strip():
+    if st.session_state.session_initialized:
+        st.chat_message("user", avatar="🧑‍💻").markdown(user_query)
+        with st.chat_message("assistant", avatar="🤖"):
+            tool_placeholder = st.empty()
+            text_placeholder = st.empty()
+            resp, final_text, final_tool = st.session_state.event_loop.run_until_complete(
+                process_query(user_query, text_placeholder, tool_placeholder, st.session_state.timeout_seconds)
+            )
+        if "error" in resp:
+            st.error(resp["error"])
+        else:
+            st.session_state.history.append({"role": "user", "content": user_query})
+            st.session_state.history.append({"role": "assistant", "content": final_text})
+            if final_tool.strip():
+                st.session_state.history.append({"role": "assistant_tool", "content": final_tool})
+            st.rerun()
     else:
-        st.session_state.history.append({"role": "user", "content": query})
-        st.session_state.history.append({"role": "assistant", "content": final_text})
-        if final_tool.strip():
-            st.session_state.history.append({"role": "assistant_tool", "content": final_tool})
-        st.rerun()
+        st.warning("⚠️ Please click 'Apply Settings' first.")
+
