@@ -1,0 +1,45 @@
+{
+  "google-maps": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@modelcontextprotocol/server-google-maps"
+    ],
+    "env": {
+      "GOOGLE_MAPS_API_KEY": "AIzaSyB0YJNTbOYjtFjGVXoii_7CmLFX-nX_wko",
+      "PATH": "/Users/jader/MCP/langgraph-mcp-agents/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Library/Apple/usr/bin"
+    },
+    "transport": "stdio"
+  },
+  "playwright": {
+    "command": "npx",
+    "args": [
+      "@playwright/mcp@latest",
+      "--headless"
+    ],
+    "transport": "stdio"
+  },
+  "serper": {
+    "command": "uvx",
+    "args": [
+      "serper-mcp-server"
+    ],
+    "env": {
+      "SERPER_API_KEY": "4dfe29263788736af4da7e4115f55cfacc572b20",
+      "PATH": "/Users/jader/MCP/langgraph-mcp-agents/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Library/Apple/usr/bin"
+    },
+    "transport": "stdio"
+  },
+  "youtube-data-mcp-server": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@smithery/cli@latest",
+      "run",
+      "@icraft2170/youtube-data-mcp-server",
+      "--key",
+      "a2895e24-c1e1-4ea0-a1a8-c3a90651a210"
+    ],
+    "transport": "stdio"
+  }
+}
