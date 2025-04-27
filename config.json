@@ -41,5 +41,24 @@
       "a2895e24-c1e1-4ea0-a1a8-c3a90651a210"
     ],
     "transport": "stdio"
+  },
+  "MeuServidorMCP": {
+    "command": "uv",
+    "args": [
+      "run",
+      "my_mcp_servers/meu_mcp_server.py"
+    ],
+    "cwd": "/Users/jader/dev/mcp_client_geral"
+  },
+  "mcp-document-reader": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@smithery/cli@latest",
+      "run",
+      "@jbchouinard/mcp-document-reader",
+      "--key",
+      "a2895e24-c1e1-4ea0-a1a8-c3a90651a210"
+    ]
   }
 }
